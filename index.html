@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Normal Distribution Practice</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .diagram-container {
+      display: grid;
+      grid-template-columns: repeat(2, 250px);
+      gap: 20px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    .diagram {
+      border: 2px solid #ccc;
+      padding: 10px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .diagram:hover {
+      border-color: #000;
+    }
+
+    button {
+      margin-top: 30px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<h2 id="question">Loading question...</h2>
+
+<div class="diagram-container">
+  <div class="diagram" onclick="checkAnswer('A')">A<br>Below mean, Left shaded</div>
+  <div class="diagram" onclick="checkAnswer('B')">B<br>Below mean, Right shaded</div>
+  <div class="diagram" onclick="checkAnswer('C')">C<br>Above mean, Left shaded</div>
+  <div class="diagram" onclick="checkAnswer('D')">D<br>Above mean, Right shaded</div>
+</div>
+
+<button onclick="newQuestion()">New Question</button>
+
+<script>
+
+let correctAnswer = "";
+
+function newQuestion() {
+  const contexts = [
+    "The top",
+    "The bottom"
+  ];
+
+  const percentages = Math.floor(Math.random() * 20) + 5;
+
+  const context = contexts[Math.floor(Math.random() * contexts.length)];
+
+  document.getElementById("question").innerText =
+    context + " " + percentages + "% of exam scores receive a prize. Select the correct diagram.";
+
+  if (context === "The top") {
+    correctAnswer = "D"; // Above mean, Right shaded
+  } else {
+    correctAnswer = "A"; // Below mean, Left shaded
+  }
+
+  resetDiagrams();
+}
+
+function checkAnswer(choice) {
+  const diagrams = document.getElementsByClassName("diagram");
+
+  for (let d of diagrams) {
+    d.style.backgroundColor = "white";
+  }
+
+  const selected = event.currentTarget;
+
+  if (choice === correctAnswer) {
+    selected.style.backgroundColor = "lightgreen";
+  } else {
+    selected.style.backgroundColor = "#ffcccc";
+  }
+}
+
+function resetDiagrams() {
+  const diagrams = document.getElementsByClassName("diagram");
+  for (let d of diagrams) {
+    d.style.backgroundColor = "white";
+  }
+}
+
+newQuestion();
+
+</script>
+
+</body>
+</html>
