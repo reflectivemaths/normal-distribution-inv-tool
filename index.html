@@ -1,100 +1,218 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Normal Distribution Practice</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 20px;
-    }
+<meta charset="UTF-8">
+<title>Normal Distribution Direction Practice</title>
 
-    .diagram-container {
-      display: grid;
-      grid-template-columns: repeat(2, 250px);
-      gap: 20px;
-      justify-content: center;
-      margin-top: 30px;
-    }
+<style>
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+}
 
-    .diagram {
-      border: 2px solid #ccc;
-      padding: 10px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
+.diagram-container {
+  display: grid;
+  grid-template-columns: repeat(2, 320px);
+  gap: 20px;
+  justify-content: center;
+  margin-top: 30px;
+}
 
-    .diagram:hover {
-      border-color: #000;
-    }
+.diagram {
+  border: 2px solid #ccc;
+  padding: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+}
 
-    button {
-      margin-top: 30px;
-      padding: 10px 20px;
-      font-size: 16px;
-    }
-  </style>
+.diagram:hover {
+  border-color: black;
+}
+
+.correct {
+  background-color: #c8f7c5;
+}
+
+.wrong {
+  background-color: #f7c5c5;
+}
+
+svg {
+  width: 100%;
+  height: 160px;
+}
+
+.controls {
+  margin-top: 20px;
+}
+
+#explanation {
+  margin-top: 20px;
+  font-weight: bold;
+  min-height: 40px;
+}
+
+button {
+  padding: 8px 15px;
+  font-size: 14px;
+  margin: 5px;
+}
+</style>
 </head>
+
 <body>
 
-<h2 id="question">Loading question...</h2>
+<h2 id="question">Loading...</h2>
+
+<div class="controls">
+  Difficulty:
+  <select id="difficulty">
+    <option value="mixed">Mixed</option>
+    <option value="easy">Easy</option>
+    <option value="hard">Hard</option>
+  </select>
+</div>
 
 <div class="diagram-container">
-  <div class="diagram" onclick="checkAnswer('A')">A<br>Below mean, Left shaded</div>
-  <div class="diagram" onclick="checkAnswer('B')">B<br>Below mean, Right shaded</div>
-  <div class="diagram" onclick="checkAnswer('C')">C<br>Above mean, Left shaded</div>
-  <div class="diagram" onclick="checkAnswer('D')">D<br>Above mean, Right shaded</div>
+  <div class="diagram" onclick="checkAnswer('A', this)"></div>
+  <div class="diagram" onclick="checkAnswer('B', this)"></div>
+  <div class="diagram" onclick="checkAnswer('C', this)"></div>
+  <div class="diagram" onclick="checkAnswer('D', this)"></div>
 </div>
+
+<div id="explanation"></div>
 
 <button onclick="newQuestion()">New Question</button>
 
 <script>
 
 let correctAnswer = "";
+let explanationText = "";
 
-function newQuestion() {
-  const contexts = [
-    "The top",
-    "The bottom"
-  ];
+const contexts = [
+  "exam scores",
+  "heights of students",
+  "weights of parcels",
+  "reaction times",
+  "salaries",
+  "test marks",
+  "race times"
+];
 
-  const percentages = Math.floor(Math.random() * 20) + 5;
+function bellSVG(meanPosition, shadeSide) {
 
-  const context = contexts[Math.floor(Math.random() * contexts.length)];
+  let kX = meanPosition === "below" ? 115 : 205;
+  let shadeLeft = shadeSide === "left";
 
-  document.getElementById("question").innerText =
-    context + " " + percentages + "% of exam scores receive a prize. Select the correct diagram.";
-
-  if (context === "The top") {
-    correctAnswer = "D"; // Above mean, Right shaded
-  } else {
-    correctAnswer = "A"; // Below mean, Left shaded
-  }
-
-  resetDiagrams();
+  return `
+  <svg viewBox="0 0 300 150">
+    <path d="M20 120 Q150 10 280 120" fill="none" stroke="black" stroke-width="2"/>
+    
+    ${shadeLeft
+      ? `<rect x="20" y="0" width="${kX-20}" height="150" fill="rgba(100,150,255,0.3)"/>`
+      : `<rect x="${kX}" y="0" width="${280-kX}" height="150" fill="rgba(100,150,255,0.3)"/>`
+    }
+    
+    <line x1="150" y1="10" x2="150" y2="120" stroke="black" stroke-dasharray="4"/>
+    <line x1="${kX}" y1="10" x2="${kX}" y2="120" stroke="red"/>
+  </svg>
+  `;
 }
 
-function checkAnswer(choice) {
-  const diagrams = document.getElementsByClassName("diagram");
+function newQuestion() {
 
-  for (let d of diagrams) {
-    d.style.backgroundColor = "white";
+  resetDiagrams();
+  document.getElementById("explanation").innerText = "";
+
+  const difficulty = document.getElementById("difficulty").value;
+  const percent = Math.floor(Math.random() * 40) + 1;
+  const context = contexts[Math.floor(Math.random() * contexts.length)];
+
+  const typePool = {
+    easy: [0,1,2,3],
+    hard: [4,5,6,7],
+    mixed: [0,1,2,3,4,5,6,7]
+  };
+
+  const type = typePool[difficulty][Math.floor(Math.random() * typePool[difficulty].length)];
+
+  const question = document.getElementById("question");
+
+  if (type === 0) {
+    question.innerText = `The lowest ${percent}% of ${context} are selected. Choose the correct diagram.`;
+    correctAnswer = "A";
+    explanationText = `${percent}% are in the lower tail, so we shade left. The cutoff must be below the mean.`;
   }
 
-  const selected = event.currentTarget;
+  if (type === 1) {
+    question.innerText = `The highest ${percent}% of ${context} receive an award. Choose the correct diagram.`;
+    correctAnswer = "D";
+    explanationText = `${percent}% are in the upper tail, so we shade right. The cutoff must be above the mean.`;
+  }
+
+  if (type === 2) {
+    question.innerText = `${percent}% of ${context} are at least k. Choose the correct diagram.`;
+    correctAnswer = "B";
+    explanationText = `${percent}% are greater than k, so we shade right. Since this is a small upper tail, k is below the mean.`;
+  }
+
+  if (type === 3) {
+    question.innerText = `${percent}% of ${context} are no more than k. Choose the correct diagram.`;
+    correctAnswer = "C";
+    explanationText = `${percent}% are less than k, so we shade left. Since this is a small lower tail, k is above the mean.`;
+  }
+
+  if (type === 4) {
+    question.innerText = `What value puts someone in the top ${percent}% of ${context}?`;
+    correctAnswer = "D";
+    explanationText = `Top ${percent}% means the upper tail is shaded. The cutoff must be above the mean.`;
+  }
+
+  if (type === 5) {
+    question.innerText = `What value is exceeded by ${percent}% of ${context}?`;
+    correctAnswer = "D";
+    explanationText = `${percent}% exceed the value, so the upper tail is shaded. The cutoff is above the mean.`;
+  }
+
+  if (type === 6) {
+    question.innerText = `What minimum value guarantees being in the highest ${percent}% of ${context}?`;
+    correctAnswer = "D";
+    explanationText = `Only ${percent}% are above this value, so we shade the upper tail. The cutoff is above the mean.`;
+  }
+
+  if (type === 7) {
+    question.innerText = `What value is not exceeded by the lowest ${percent}% of ${context}?`;
+    correctAnswer = "A";
+    explanationText = `The lowest ${percent}% are below this value, so we shade left. The cutoff is below the mean.`;
+  }
+
+  const diagrams = document.getElementsByClassName("diagram");
+  diagrams[0].innerHTML = bellSVG("below", "left");
+  diagrams[1].innerHTML = bellSVG("below", "right");
+  diagrams[2].innerHTML = bellSVG("above", "left");
+  diagrams[3].innerHTML = bellSVG("above", "right");
+}
+
+function checkAnswer(choice, element) {
+
+  resetDiagrams();
 
   if (choice === correctAnswer) {
-    selected.style.backgroundColor = "lightgreen";
+    element.classList.add("correct");
   } else {
-    selected.style.backgroundColor = "#ffcccc";
+    element.classList.add("wrong");
   }
+
+  document.getElementById("explanation").innerText = explanationText;
 }
 
 function resetDiagrams() {
   const diagrams = document.getElementsByClassName("diagram");
   for (let d of diagrams) {
-    d.style.backgroundColor = "white";
+    d.classList.remove("correct", "wrong");
   }
 }
 
