@@ -107,15 +107,30 @@ function bellSVG(meanPosition, shadeSide) {
   let kX = meanPosition === "below" ? 115 : 205;
   let shadeLeft = shadeSide === "left";
 
+  let curvePath = "M20 120 Q150 10 280 120";
+
+  let shadePath;
+
+  if (shadeLeft) {
+    shadePath = `
+      M20 120 
+      Q150 10 280 120 
+      L${kX} 120 
+      L20 120 Z
+    `;
+  } else {
+    shadePath = `
+      M${kX} 120 
+      Q150 10 280 120 
+      L280 120 
+      L${kX} 120 Z
+    `;
+  }
+
   return `
   <svg viewBox="0 0 300 150">
-    <path d="M20 120 Q150 10 280 120" fill="none" stroke="black" stroke-width="2"/>
-    
-    ${shadeLeft
-      ? `<rect x="20" y="0" width="${kX-20}" height="150" fill="rgba(100,150,255,0.3)"/>`
-      : `<rect x="${kX}" y="0" width="${280-kX}" height="150" fill="rgba(100,150,255,0.3)"/>`
-    }
-    
+    <path d="${shadePath}" fill="rgba(100,150,255,0.4)" />
+    <path d="${curvePath}" fill="none" stroke="black" stroke-width="2"/>
     <line x1="150" y1="10" x2="150" y2="120" stroke="black" stroke-dasharray="4"/>
     <line x1="${kX}" y1="10" x2="${kX}" y2="120" stroke="red"/>
   </svg>
